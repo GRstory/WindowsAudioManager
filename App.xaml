@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="WindowsAudioManager.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <FontFamily x:Key="ContentControlThemeFontFamily">ms-appx:///Assets/Fonts/Pretendard-Regular.ttf#Pretendard</FontFamily>
+            <FontFamily x:Key="AppFontBold">ms-appx:///Assets/Fonts/Pretendard-Bold.ttf#Pretendard</FontFamily>
+
+            <Style x:Key="DeviceItemButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{ThemeResource ControlFillColorDefaultBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource ControlElevationBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="Padding" Value="12,10"/>
+                <Setter Property="MinWidth" Value="280"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="UseSystemFocusVisuals" Value="True"/>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

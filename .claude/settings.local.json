@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\arati\\\\.nuget\\\\packages\" -Directory | Where-Object { $_.Name -match \"msix|appx|mrt|priconfig|pritask\" } | Select-Object Name)"
+    ]
+  }
+}

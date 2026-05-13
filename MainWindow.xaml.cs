@@ -76,8 +76,8 @@ public sealed partial class MainWindow : Window
         try
         {
             var enumerator = new MMDeviceEnumerator();
-            string defaultOutId = TryGetDefaultId(enumerator, DataFlow.Render);
-            string defaultInId = TryGetDefaultId(enumerator, DataFlow.Capture);
+            string defaultOutId = TryGetDefaultId(enumerator, DataFlow.Render, Role.Multimedia);
+            string defaultInId = TryGetDefaultId(enumerator, DataFlow.Capture, Role.Multimedia);
 
             foreach (var d in enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active)
                                        .OrderBy(d => d.FriendlyName, StringComparer.CurrentCultureIgnoreCase))
@@ -117,11 +117,11 @@ public sealed partial class MainWindow : Window
         });
     }
 
-    private static string TryGetDefaultId(MMDeviceEnumerator enumerator, DataFlow flow)
+    private static string TryGetDefaultId(MMDeviceEnumerator enumerator, DataFlow flow, Role role)
     {
         try
         {
-            return enumerator.GetDefaultAudioEndpoint(flow, Role.Multimedia).ID;
+            return enumerator.GetDefaultAudioEndpoint(flow, role).ID;
         }
         catch
         {
@@ -209,6 +209,7 @@ public sealed partial class MainWindow : Window
         LoudMaxState.IsOn = false;
         UpdateLoudMaxButtons();
     }
+
     private void RefreshButton_Click(object sender, RoutedEventArgs e) => RefreshDevices();
 
     private SettingsWindow? _settingsWindow;
@@ -224,18 +225,17 @@ public sealed partial class MainWindow : Window
 
     private void DeviceButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button b && b.Tag is string id && !string.IsNullOrEmpty(id))
+        if (sender is not Button b || b.Tag is not string id || string.IsNullOrEmpty(id)) return;
+
+        try
         {
-            try
-            {
-                PolicyConfig.SetDefaultDevice(id);
-                StatusText.Text = "기본 장치 + 통신 장치 설정 완료";
-                RefreshDevices();
-            }
-            catch (Exception ex)
-            {
-                StatusText.Text = "설정 오류: " + ex.Message;
-            }
+            PolicyConfig.SetDefaultDevice(id);
+            StatusText.Text = "기본 장치 + 통신 장치 설정 완료";
+            RefreshDevices();
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = "설정 오류: " + ex.Message;
         }
     }
 }

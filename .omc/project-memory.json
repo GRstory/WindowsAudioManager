@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1778690784867,
-  "projectRoot": "C:\\Users\\arati\\Documents\\GitHub\\WindowsAudioManager",
+  "lastScanned": 1783177229657,
+  "projectRoot": "c:\\Users\\arati\\Documents\\GitHub\\WindowsAudioManager",
   "techStack": {
     "languages": [],
     "frameworks": [],
@@ -38,39 +38,76 @@
       "path": "Assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1778690784841,
+      "lastAccessed": 1783177229608,
       "keyFiles": []
     },
     "bin": {
       "path": "bin",
       "purpose": "Executable scripts",
       "fileCount": 0,
-      "lastAccessed": 1778690784841,
+      "lastAccessed": 1783177229609,
       "keyFiles": []
     },
     "obj": {
       "path": "obj",
       "purpose": null,
-      "fileCount": 8,
-      "lastAccessed": 1778690784842,
+      "fileCount": 5,
+      "lastAccessed": 1783177229610,
       "keyFiles": [
-        "Equalizer.csproj.nuget.dgspec.json",
-        "Equalizer.csproj.nuget.g.props",
-        "Equalizer.csproj.nuget.g.targets",
         "project.assets.json",
-        "project.nuget.cache"
+        "project.nuget.cache",
+        "WindowsAudioManager.csproj.nuget.dgspec.json",
+        "WindowsAudioManager.csproj.nuget.g.props",
+        "WindowsAudioManager.csproj.nuget.g.targets"
       ]
     },
     "Properties": {
       "path": "Properties",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1778690784842,
+      "lastAccessed": 1783177229611,
       "keyFiles": [
         "launchSettings.json"
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "MainWindow.xaml.cs",
+      "accessCount": 7,
+      "lastAccessed": 1783178543629,
+      "type": "file"
+    },
+    {
+      "path": "MainWindow.xaml",
+      "accessCount": 3,
+      "lastAccessed": 1783178525846,
+      "type": "file"
+    },
+    {
+      "path": "AudioDevice.cs",
+      "accessCount": 1,
+      "lastAccessed": 1783177317988,
+      "type": "file"
+    },
+    {
+      "path": "TrayManager.cs",
+      "accessCount": 1,
+      "lastAccessed": 1783177318216,
+      "type": "file"
+    },
+    {
+      "path": "PolicyConfig.cs",
+      "accessCount": 1,
+      "lastAccessed": 1783177322214,
+      "type": "file"
+    },
+    {
+      "path": "App.xaml.cs",
+      "accessCount": 1,
+      "lastAccessed": 1783177641897,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }

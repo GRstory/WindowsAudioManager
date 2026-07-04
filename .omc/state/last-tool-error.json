@@ -1,0 +1,7 @@
+{
+  "tool_name": "PowerShell",
+  "tool_input_preview": "{\"command\":\"Stop-Process -Id 17244 -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 500; Get-Process -Id 17244 -ErrorAction SilentlyContinue\",\"description\":\"Stop running WindowsAudioMan...",
+  "error": "Exit code 1",
+  "timestamp": "2026-07-04T15:19:20.111Z",
+  "retry_count": 2
+}

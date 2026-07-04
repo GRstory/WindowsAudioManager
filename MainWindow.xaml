@@ -186,5 +186,12 @@
                 </StackPanel>
             </Border>
         </StackPanel>
+
+        <Grid x:Name="LoadingOverlay"
+              Grid.Row="1"
+              Background="#66000000"
+              Visibility="Collapsed">
+            <ProgressRing IsActive="True" Width="48" Height="48"/>
+        </Grid>
     </Grid>
 </Window>

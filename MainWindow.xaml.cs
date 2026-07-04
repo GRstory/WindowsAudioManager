@@ -1,13 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using NAudio.CoreAudioApi;
+using NAudio.CoreAudioApi.Interfaces;
 using Windows.Graphics;
 
 namespace WindowsAudioManager;
@@ -17,6 +20,8 @@ public sealed partial class MainWindow : Window
     private readonly ObservableCollection<AudioDevice> _outputs = new();
     private readonly ObservableCollection<AudioDevice> _inputs = new();
     private readonly AppWindow _appWindow;
+    private readonly MMDeviceEnumerator _notificationEnumerator = new();
+    private readonly DeviceNotificationClient _notificationClient;
 
     private bool _hideOnClose;
 
@@ -66,49 +71,64 @@ public sealed partial class MainWindow : Window
                 RefreshDevices();
             };
         }
+
+        _notificationClient = new DeviceNotificationClient(() => DispatcherQueue.TryEnqueue(RefreshDevices));
+        _notificationEnumerator.RegisterEndpointNotificationCallback(_notificationClient);
     }
 
-    private void RefreshDevices()
+    private void RefreshDevices() => _ = RefreshDevicesAsync();
+
+    private async Task RefreshDevicesAsync()
     {
-        _outputs.Clear();
-        _inputs.Clear();
+        var outputs = new List<AudioDevice>();
+        var inputs = new List<AudioDevice>();
+        string status;
 
         try
         {
-            var enumerator = new MMDeviceEnumerator();
-            string defaultOutId = TryGetDefaultId(enumerator, DataFlow.Render, Role.Multimedia);
-            string defaultInId = TryGetDefaultId(enumerator, DataFlow.Capture, Role.Multimedia);
-
-            foreach (var d in enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active)
-                                       .OrderBy(d => d.FriendlyName, StringComparer.CurrentCultureIgnoreCase))
+            await Task.Run(() =>
             {
-                _outputs.Add(new AudioDevice
-                {
-                    Id = d.ID,
-                    Name = d.FriendlyName,
-                    IsDefault = d.ID == defaultOutId,
-                    DataFlow = DataFlow.Render
-                });
-            }
+                var enumerator = new MMDeviceEnumerator();
+                string defaultOutId = TryGetDefaultId(enumerator, DataFlow.Render, Role.Multimedia);
+                string defaultInId = TryGetDefaultId(enumerator, DataFlow.Capture, Role.Multimedia);
 
-            foreach (var d in enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active)
-                                       .OrderBy(d => d.FriendlyName, StringComparer.CurrentCultureIgnoreCase))
-            {
-                _inputs.Add(new AudioDevice
+                foreach (var d in enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active)
+                                           .OrderBy(d => d.FriendlyName, StringComparer.CurrentCultureIgnoreCase))
                 {
-                    Id = d.ID,
-                    Name = d.FriendlyName,
-                    IsDefault = d.ID == defaultInId,
-                    DataFlow = DataFlow.Capture
-                });
-            }
+                    outputs.Add(new AudioDevice
+                    {
+                        Id = d.ID,
+                        Name = d.FriendlyName,
+                        IsDefault = d.ID == defaultOutId,
+                        DataFlow = DataFlow.Render
+                    });
+                }
 
-            StatusText.Text = $"마지막 새로고침: {DateTime.Now:yyyy-MM-dd HH:mm:ss}  ·  출력 {_outputs.Count}개 / 입력 {_inputs.Count}개";
+                foreach (var d in enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active)
+                                           .OrderBy(d => d.FriendlyName, StringComparer.CurrentCultureIgnoreCase))
+                {
+                    inputs.Add(new AudioDevice
+                    {
+                        Id = d.ID,
+                        Name = d.FriendlyName,
+                        IsDefault = d.ID == defaultInId,
+                        DataFlow = DataFlow.Capture
+                    });
+                }
+            });
+
+            status = $"마지막 새로고침: {DateTime.Now:yyyy-MM-dd HH:mm:ss}  ·  출력 {outputs.Count}개 / 입력 {inputs.Count}개";
         }
         catch (Exception ex)
         {
-            StatusText.Text = "장치 열거 오류: " + ex.Message;
+            status = "장치 열거 오류: " + ex.Message;
         }
+
+        _outputs.Clear();
+        foreach (var o in outputs) _outputs.Add(o);
+        _inputs.Clear();
+        foreach (var i in inputs) _inputs.Add(i);
+        StatusText.Text = status;
 
         DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, ResizeWindowToContent);
         DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
@@ -223,19 +243,35 @@ public sealed partial class MainWindow : Window
         _settingsWindow.Activate();
     }
 
-    private void DeviceButton_Click(object sender, RoutedEventArgs e)
+    private async void DeviceButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Button b || b.Tag is not string id || string.IsNullOrEmpty(id)) return;
 
+        LoadingOverlay.Visibility = Visibility.Visible;
         try
         {
-            PolicyConfig.SetDefaultDevice(id);
+            await Task.Run(() => PolicyConfig.SetDefaultDevice(id));
             StatusText.Text = "기본 장치 + 통신 장치 설정 완료";
-            RefreshDevices();
         }
         catch (Exception ex)
         {
             StatusText.Text = "설정 오류: " + ex.Message;
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            return;
         }
+
+        await RefreshDevicesAsync();
+        LoadingOverlay.Visibility = Visibility.Collapsed;
     }
+}
+
+internal sealed class DeviceNotificationClient : IMMNotificationClient
+{
+    private readonly Action _onChanged;
+    public DeviceNotificationClient(Action onChanged) => _onChanged = onChanged;
+    public void OnDeviceStateChanged(string deviceId, DeviceState newState) => _onChanged();
+    public void OnDeviceAdded(string pwstrDeviceId) => _onChanged();
+    public void OnDeviceRemoved(string deviceId) => _onChanged();
+    public void OnDefaultDeviceChanged(DataFlow flow, Role role, string defaultDeviceId) => _onChanged();
+    public void OnPropertyValueChanged(string pwstrDeviceId, PropertyKey key) { }
 }

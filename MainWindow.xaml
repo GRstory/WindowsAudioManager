@@ -33,14 +33,22 @@
                            Style="{StaticResource TitleTextBlockStyle}"
                            FontFamily="{StaticResource AppFontBold}"
                            VerticalAlignment="Center"/>
-                <Button Click="SettingsButton_Click"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <FontIcon Glyph="&#xE713;" FontSize="14"/>
-                        <TextBlock Text="설정"/>
-                    </StackPanel>
-                </Button>
+                <StackPanel Orientation="Horizontal" Spacing="8"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                    <Button Click="ExitButton_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon Glyph="&#xE7E8;" FontSize="14"/>
+                            <TextBlock Text="종료"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Click="SettingsButton_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon Glyph="&#xE713;" FontSize="14"/>
+                            <TextBlock Text="설정"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </Grid>
 
             <Border Background="{ThemeResource LayerFillColorDefaultBrush}"

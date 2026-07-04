@@ -74,14 +74,26 @@
   "hotPaths": [
     {
       "path": "MainWindow.xaml.cs",
-      "accessCount": 7,
-      "lastAccessed": 1783178543629,
+      "accessCount": 8,
+      "lastAccessed": 1783178829790,
       "type": "file"
     },
     {
       "path": "MainWindow.xaml",
-      "accessCount": 3,
-      "lastAccessed": 1783178525846,
+      "accessCount": 4,
+      "lastAccessed": 1783178822657,
+      "type": "file"
+    },
+    {
+      "path": "TrayManager.cs",
+      "accessCount": 2,
+      "lastAccessed": 1783178810375,
+      "type": "file"
+    },
+    {
+      "path": "App.xaml.cs",
+      "accessCount": 2,
+      "lastAccessed": 1783178814771,
       "type": "file"
     },
     {
@@ -91,22 +103,28 @@
       "type": "file"
     },
     {
-      "path": "TrayManager.cs",
-      "accessCount": 1,
-      "lastAccessed": 1783177318216,
-      "type": "file"
-    },
-    {
       "path": "PolicyConfig.cs",
       "accessCount": 1,
       "lastAccessed": 1783177322214,
       "type": "file"
     },
     {
-      "path": "App.xaml.cs",
+      "path": "SettingsWindow.xaml.cs",
       "accessCount": 1,
-      "lastAccessed": 1783177641897,
+      "lastAccessed": 1783178723687,
       "type": "file"
+    },
+    {
+      "path": "SettingsWindow.xaml",
+      "accessCount": 1,
+      "lastAccessed": 1783178724007,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1783178854050,
+      "type": "directory"
     }
   ],
   "userDirectives": []

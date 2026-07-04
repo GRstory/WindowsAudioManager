@@ -232,6 +232,8 @@ public sealed partial class MainWindow : Window
 
     private void RefreshButton_Click(object sender, RoutedEventArgs e) => RefreshDevices();
 
+    private void ExitButton_Click(object sender, RoutedEventArgs e) => App.Current.ExitApp();
+
     private SettingsWindow? _settingsWindow;
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {

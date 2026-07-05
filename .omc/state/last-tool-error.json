@@ -1,7 +1,0 @@
-{
-  "tool_name": "PowerShell",
-  "tool_input_preview": "{\"command\":\"dotnet build WindowsAudioManager.csproj -c Debug -v minimal\",\"timeout\":600000,\"description\":\"Build the WinUI3 project to verify XAML changes compile\"}",
-  "error": "Exit code 1\n  복원할 프로젝트를 확인하는 중...\r\n  복원할 모든 프로젝트가 최신 상태입니다.\r\nC:\\Users\\arati\\.nuget\\packages\\microsoft.windowsappsdk\\1.6.250108002\\buildTransitive\\MrtCore.PriGen.targets(914,5): error MSB4062: c:\\program files\\dotnet\\sdk\\9.0.313\\\\Microsoft\\VisualStudio\\v17.0\\AppxPackage\\\\Microsoft.Build.Packaging.Pri.Tasks.dll 어셈블리에서 \"Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent\" 작업을 로드할 수 없습니다. Could not load file or assembly 'c:\\program files\\dotnet\\sdk\\9.0.313\\Microsoft\\VisualStudio\\v17.0\\AppxPackage\\M...",
-  "timestamp": "2026-07-05T04:17:45.538Z",
-  "retry_count": 1
-}

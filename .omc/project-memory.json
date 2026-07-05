@@ -74,26 +74,38 @@
   "hotPaths": [
     {
       "path": "MainWindow.xaml.cs",
-      "accessCount": 8,
-      "lastAccessed": 1783178829790,
+      "accessCount": 37,
+      "lastAccessed": 1783225316640,
       "type": "file"
     },
     {
       "path": "MainWindow.xaml",
-      "accessCount": 4,
-      "lastAccessed": 1783178822657,
+      "accessCount": 35,
+      "lastAccessed": 1783225306372,
       "type": "file"
+    },
+    {
+      "path": "App.xaml",
+      "accessCount": 4,
+      "lastAccessed": 1783224794646,
+      "type": "file"
+    },
+    {
+      "path": "App.xaml.cs",
+      "accessCount": 4,
+      "lastAccessed": 1783225137672,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 3,
+      "lastAccessed": 1783180499737,
+      "type": "directory"
     },
     {
       "path": "TrayManager.cs",
       "accessCount": 2,
       "lastAccessed": 1783178810375,
-      "type": "file"
-    },
-    {
-      "path": "App.xaml.cs",
-      "accessCount": 2,
-      "lastAccessed": 1783178814771,
       "type": "file"
     },
     {
@@ -121,10 +133,10 @@
       "type": "file"
     },
     {
-      "path": "",
+      "path": "AutoStart.cs",
       "accessCount": 1,
-      "lastAccessed": 1783178854050,
-      "type": "directory"
+      "lastAccessed": 1783179094107,
+      "type": "file"
     }
   ],
   "userDirectives": []

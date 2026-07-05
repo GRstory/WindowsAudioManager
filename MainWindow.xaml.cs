@@ -62,6 +62,8 @@ public sealed partial class MainWindow : Window
 
         OutputList.ItemsSource = _outputs;
         InputList.ItemsSource = _inputs;
+        AutoStartToggle.IsOn = AutoStart.IsEnabled();
+        SetActiveTab(isSettings: false);
 
         if (Content is FrameworkElement root)
         {
@@ -128,13 +130,10 @@ public sealed partial class MainWindow : Window
         foreach (var o in outputs) _outputs.Add(o);
         _inputs.Clear();
         foreach (var i in inputs) _inputs.Add(i);
-        StatusText.Text = status;
+        LogText.Text = status;
 
-        DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, ResizeWindowToContent);
-        DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
-        {
-            DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, ResizeWindowToContent);
-        });
+        _resizeSettleSize = default;
+        DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => ResizeWindowToContent(0));
     }
 
     private static string TryGetDefaultId(MMDeviceEnumerator enumerator, DataFlow flow, Role role)
@@ -149,27 +148,34 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private void ResizeWindowToContent()
+    private Windows.Foundation.Size _resizeSettleSize;
+
+    private void ResizeWindowToContent(int attempt)
     {
         if (Content is not FrameworkElement root) return;
 
-        OutputList.MinWidth = 0;
-        InputList.MinWidth = 0;
         var inf = new Windows.Foundation.Size(4000, 4000);
-        OutputList.Measure(inf);
-        InputList.Measure(inf);
-        var colWidth = Math.Max(OutputList.DesiredSize.Width, InputList.DesiredSize.Width);
-        OutputList.MinWidth = colWidth;
-        InputList.MinWidth = colWidth;
-
         root.InvalidateMeasure();
         root.UpdateLayout();
         root.Measure(inf);
         var s = root.DesiredSize;
         double scale = root.XamlRoot?.RasterizationScale ?? 1.0;
+
         int w = Math.Max(480, (int)Math.Ceiling(s.Width * scale) + 4);
         int h = Math.Max(220, (int)Math.Ceiling(s.Height * scale) + 4);
         _appWindow.ResizeClient(new SizeInt32(w, h));
+
+        bool stable = Math.Abs(s.Width - _resizeSettleSize.Width) < 0.5
+                   && Math.Abs(s.Height - _resizeSettleSize.Height) < 0.5;
+        _resizeSettleSize = s;
+
+        if (!stable && attempt < 10)
+        {
+            DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => ResizeWindowToContent(attempt + 1));
+        }
+#if DEBUG
+        Title = $"DBG a={attempt} stable={stable} sW={s.Width:F0} sH={s.Height:F0} scale={scale:F2} w={w} outAW={OutputList.ActualWidth:F0} inAW={InputList.ActualWidth:F0} outDW={OutputList.DesiredSize.Width:F0} caAW={ContentArea.ActualWidth:F0} navAW={NavSidebar.ActualWidth:F0}";
+#endif
     }
 
     private void RunBat(string fileName)
@@ -179,7 +185,7 @@ public sealed partial class MainWindow : Window
             var path = Path.Combine(AppContext.BaseDirectory, fileName);
             if (!File.Exists(path))
             {
-                LoudMaxStatusText.Text = $"{fileName} 파일을 찾을 수 없습니다.";
+                LogText.Text = $"{fileName} 파일을 찾을 수 없습니다.";
                 return;
             }
             var psi = new ProcessStartInfo
@@ -193,11 +199,11 @@ public sealed partial class MainWindow : Window
             };
             using var p = Process.Start(psi);
             p?.WaitForExit(5000);
-            LoudMaxStatusText.Text = $"{DateTime.Now:HH:mm:ss}  {fileName} 실행 완료";
+            LogText.Text = $"{DateTime.Now:HH:mm:ss}  {fileName} 실행 완료";
         }
         catch (Exception ex)
         {
-            LoudMaxStatusText.Text = "실행 오류: " + ex.Message;
+            LogText.Text = "실행 오류: " + ex.Message;
         }
     }
 
@@ -234,15 +240,34 @@ public sealed partial class MainWindow : Window
 
     private void ExitButton_Click(object sender, RoutedEventArgs e) => App.Current.ExitApp();
 
-    private SettingsWindow? _settingsWindow;
-    private void SettingsButton_Click(object sender, RoutedEventArgs e)
+    private void AutoStartToggle_Toggled(object sender, RoutedEventArgs e)
     {
-        if (_settingsWindow is null)
+        AutoStart.SetEnabled(AutoStartToggle.IsOn);
+        if (AutoStartToggle.IsOn)
         {
-            _settingsWindow = new SettingsWindow(this);
-            _settingsWindow.Closed += (_, _) => _settingsWindow = null;
+            App.Current.EnableTray();
         }
-        _settingsWindow.Activate();
+        else
+        {
+            App.Current.DisableTray();
+        }
+    }
+
+    private void MainTabButton_Click(object sender, RoutedEventArgs e) => SetActiveTab(isSettings: false);
+
+    private void SettingsTabButton_Click(object sender, RoutedEventArgs e) => SetActiveTab(isSettings: true);
+
+    private void SetActiveTab(bool isSettings)
+    {
+        MainTabContent.Opacity = isSettings ? 0 : 1;
+        MainTabContent.IsHitTestVisible = !isSettings;
+        SettingsTabContent.Opacity = isSettings ? 1 : 0;
+        SettingsTabContent.IsHitTestVisible = isSettings;
+
+        MainTabIndicator.Visibility = isSettings ? Visibility.Collapsed : Visibility.Visible;
+        SettingsTabIndicator.Visibility = isSettings ? Visibility.Visible : Visibility.Collapsed;
+        MainTabSelectedFill.Visibility = isSettings ? Visibility.Collapsed : Visibility.Visible;
+        SettingsTabSelectedFill.Visibility = isSettings ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private async void DeviceButton_Click(object sender, RoutedEventArgs e)
@@ -253,11 +278,11 @@ public sealed partial class MainWindow : Window
         try
         {
             await Task.Run(() => PolicyConfig.SetDefaultDevice(id));
-            StatusText.Text = "기본 장치 + 통신 장치 설정 완료";
+            LogText.Text = "기본 장치 + 통신 장치 설정 완료";
         }
         catch (Exception ex)
         {
-            StatusText.Text = "설정 오류: " + ex.Message;
+            LogText.Text = "설정 오류: " + ex.Message;
             LoadingOverlay.Visibility = Visibility.Collapsed;
             return;
         }

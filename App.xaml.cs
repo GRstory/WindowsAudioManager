@@ -36,8 +36,7 @@ public partial class App : Application
 
     public void EnableTray()
     {
-        if (Tray != null) return;
-        Tray = new TrayManager(ShowMainWindow);
+        if (Tray == null) Tray = new TrayManager(ShowMainWindow);
         MainWindow?.SetHideOnClose(true);
     }
 

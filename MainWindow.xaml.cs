@@ -27,6 +27,17 @@ public sealed partial class MainWindow : Window
 
     public void SetHideOnClose(bool value) => _hideOnClose = value;
 
+    public void ShowAndActivate()
+    {
+        if (_appWindow.Presenter is OverlappedPresenter presenter)
+        {
+            presenter.Restore();
+        }
+
+        _appWindow.Show(activateWindow: true);
+        Activate();
+    }
+
     public MainWindow()
     {
         InitializeComponent();

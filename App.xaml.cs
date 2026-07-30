@@ -30,7 +30,7 @@ public partial class App : Application
 
         if (!_startInTray)
         {
-            MainWindow.Activate();
+            MainWindow.ShowAndActivate();
         }
     }
 
@@ -49,7 +49,7 @@ public partial class App : Application
 
     public void ShowMainWindow()
     {
-        MainWindow?.DispatcherQueue.TryEnqueue(() => MainWindow?.Activate());
+        MainWindow?.DispatcherQueue.TryEnqueue(() => MainWindow?.ShowAndActivate());
     }
 
     public void ExitApp()

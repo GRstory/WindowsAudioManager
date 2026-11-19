@@ -233,19 +233,17 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private void LoudMaxOnButton_Click(object sender, RoutedEventArgs e)
+    public void SetLoudMax(bool on)
     {
-        RunBat("LoudMax_On.bat");
-        LoudMaxState.IsOn = true;
+        RunBat(on ? "LoudMax_On.bat" : "LoudMax_Off.bat");
+        LoudMaxState.IsOn = on;
         UpdateLoudMaxButtons();
+        App.Current.Tray?.UpdateLoudMax(on);
     }
 
-    private void LoudMaxOffButton_Click(object sender, RoutedEventArgs e)
-    {
-        RunBat("LoudMax_Off.bat");
-        LoudMaxState.IsOn = false;
-        UpdateLoudMaxButtons();
-    }
+    private void LoudMaxOnButton_Click(object sender, RoutedEventArgs e) => SetLoudMax(true);
+
+    private void LoudMaxOffButton_Click(object sender, RoutedEventArgs e) => SetLoudMax(false);
 
     private void RefreshButton_Click(object sender, RoutedEventArgs e) => RefreshDevices();
 

@@ -36,7 +36,7 @@ public partial class App : Application
 
     public void EnableTray()
     {
-        if (Tray == null) Tray = new TrayManager(ShowMainWindow);
+        if (Tray == null) Tray = new TrayManager(this);
         MainWindow?.SetHideOnClose(true);
     }
 
@@ -50,6 +50,11 @@ public partial class App : Application
     public void ShowMainWindow()
     {
         MainWindow?.DispatcherQueue.TryEnqueue(() => MainWindow?.ShowAndActivate());
+    }
+
+    public void SetLoudMax(bool on)
+    {
+        MainWindow?.DispatcherQueue.TryEnqueue(() => MainWindow?.SetLoudMax(on));
     }
 
     public void ExitApp()

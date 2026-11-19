@@ -3,6 +3,7 @@ using System.Windows.Input;
 using H.NotifyIcon;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Graphics;
 
@@ -12,8 +13,10 @@ public sealed class TrayManager : IDisposable
 {
     private readonly TrayHostWindow _host;
     private readonly TaskbarIcon _icon;
+    private readonly ToggleMenuFlyoutItem _loudMaxOn;
+    private readonly ToggleMenuFlyoutItem _loudMaxOff;
 
-    public TrayManager(Action showMainWindow)
+    public TrayManager(App app)
     {
         _host = new TrayHostWindow();
         _icon = _host.TrayIcon;
@@ -21,8 +24,21 @@ public sealed class TrayManager : IDisposable
         _icon.IconSource = new BitmapImage(new Uri("ms-appx:///Assets/Icons/display.ico"));
         _icon.ToolTipText = "Windows Audio Manager";
         _icon.NoLeftClickDelay = true;
-        _icon.LeftClickCommand = new RelayCommand(() => showMainWindow());
-        _icon.RightClickCommand = new RelayCommand(() => showMainWindow());
+        _icon.LeftClickCommand = new RelayCommand(app.ShowMainWindow);
+
+        _loudMaxOn = new ToggleMenuFlyoutItem { Text = "LoudMax On", Command = new RelayCommand(() => app.SetLoudMax(true)) };
+        _loudMaxOff = new ToggleMenuFlyoutItem { Text = "LoudMax Off", Command = new RelayCommand(() => app.SetLoudMax(false)) };
+        UpdateLoudMax(LoudMaxState.IsOn);
+
+        var menu = new MenuFlyout();
+        menu.Items.Add(new MenuFlyoutItem { Text = "열기", Command = new RelayCommand(app.ShowMainWindow) });
+        menu.Items.Add(new MenuFlyoutSeparator());
+        menu.Items.Add(_loudMaxOn);
+        menu.Items.Add(_loudMaxOff);
+        menu.Items.Add(new MenuFlyoutSeparator());
+        menu.Items.Add(new MenuFlyoutItem { Text = "종료", Command = new RelayCommand(app.ExitApp) });
+        _icon.ContextMenuMode = ContextMenuMode.PopupMenu;
+        _icon.ContextFlyout = menu;
 
         _host.Activate();
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(_host);
@@ -30,6 +46,12 @@ public sealed class TrayManager : IDisposable
         AppWindow.GetFromWindowId(hostId).MoveAndResize(new RectInt32(-32000, -32000, 1, 1));
 
         _icon.ForceCreate();
+    }
+
+    public void UpdateLoudMax(bool on)
+    {
+        _loudMaxOn.IsChecked = on;
+        _loudMaxOff.IsChecked = !on;
     }
 
     public void Dispose()

@@ -24,14 +24,14 @@ public sealed class TrayManager : IDisposable
         _icon.IconSource = new BitmapImage(new Uri("ms-appx:///Assets/Icons/display.ico"));
         _icon.ToolTipText = "Windows Audio Manager";
         _icon.NoLeftClickDelay = true;
-        _icon.LeftClickCommand = new RelayCommand(app.ShowMainWindow);
+        _icon.LeftClickCommand = new RelayCommand(() => { DebugLog.Write("--- tray left click"); app.ShowMainWindow(); });
 
         _loudMaxOn = new ToggleMenuFlyoutItem { Text = "LoudMax On", Command = new RelayCommand(() => app.SetLoudMax(true)) };
         _loudMaxOff = new ToggleMenuFlyoutItem { Text = "LoudMax Off", Command = new RelayCommand(() => app.SetLoudMax(false)) };
         UpdateLoudMax(LoudMaxState.IsOn);
 
         var menu = new MenuFlyout();
-        menu.Items.Add(new MenuFlyoutItem { Text = "열기", Command = new RelayCommand(app.ShowMainWindow) });
+        menu.Items.Add(new MenuFlyoutItem { Text = "열기", Command = new RelayCommand(() => { DebugLog.Write("--- tray menu open"); app.ShowMainWindow(); }) });
         menu.Items.Add(new MenuFlyoutSeparator());
         menu.Items.Add(_loudMaxOn);
         menu.Items.Add(_loudMaxOff);

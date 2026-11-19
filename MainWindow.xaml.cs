@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
@@ -24,18 +25,48 @@ public sealed partial class MainWindow : Window
     private readonly DeviceNotificationClient _notificationClient;
 
     private bool _hideOnClose;
+    private readonly IntPtr _hwnd;
 
     public void SetHideOnClose(bool value) => _hideOnClose = value;
 
     public void ShowAndActivate()
     {
-        if (_appWindow.Presenter is OverlappedPresenter presenter)
+        DebugLog.WindowState("ShowAndActivate start", _hwnd, (_appWindow.Presenter as OverlappedPresenter)?.State);
+        _appWindow.Show(activateWindow: true);
+        DebugLog.WindowState("after Show", _hwnd, (_appWindow.Presenter as OverlappedPresenter)?.State);
+
+        if (_appWindow.Presenter is OverlappedPresenter { State: OverlappedPresenterState.Minimized } presenter)
         {
             presenter.Restore();
+            DebugLog.WindowState("after Restore", _hwnd, presenter.State);
         }
 
-        _appWindow.Show(activateWindow: true);
         Activate();
+        DebugLog.WindowState("after Activate", _hwnd, (_appWindow.Presenter as OverlappedPresenter)?.State);
+        ForceForeground();
+        DebugLog.WindowState("after ForceForeground", _hwnd, (_appWindow.Presenter as OverlappedPresenter)?.State);
+        DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low,
+            () => DebugLog.WindowState("settled", _hwnd, (_appWindow.Presenter as OverlappedPresenter)?.State));
+    }
+
+    [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
+    [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr processId);
+    [DllImport("user32.dll")] private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+    [DllImport("kernel32.dll")] private static extern uint GetCurrentThreadId();
+
+    // 트레이 클릭 시 포커스가 explorer(트레이 오버플로 창)에 남아 창이 뒤에 깔리는 문제 대응
+    private void ForceForeground()
+    {
+        if (SetForegroundWindow(_hwnd) && GetForegroundWindow() == _hwnd) return;
+
+        var fgThread = GetWindowThreadProcessId(GetForegroundWindow(), IntPtr.Zero);
+        var myThread = GetCurrentThreadId();
+        if (fgThread == 0 || fgThread == myThread) return;
+
+        AttachThreadInput(myThread, fgThread, true);
+        SetForegroundWindow(_hwnd);
+        AttachThreadInput(myThread, fgThread, false);
     }
 
     public MainWindow()
@@ -44,13 +75,23 @@ public sealed partial class MainWindow : Window
         Title = "Windows Audio Manager";
 
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        _hwnd = hwnd;
         var id = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
         _appWindow = AppWindow.GetFromWindowId(id);
+#if DEBUG
+        _appWindow.Changed += (_, a) =>
+        {
+            if (a.DidPresenterChange || a.DidVisibilityChange || a.DidPositionChange || a.DidSizeChange)
+                DebugLog.WindowState($"Changed(vis={a.DidVisibilityChange} pos={a.DidPositionChange} size={a.DidSizeChange}) pos={_appWindow.Position.X},{_appWindow.Position.Y}", _hwnd, (_appWindow.Presenter as OverlappedPresenter)?.State);
+        };
+        Activated += (_, a) => DebugLog.Write($"Activated: {a.WindowActivationState}");
+#endif
         _appWindow.Resize(new SizeInt32(1200, 900));
         try { _appWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Icons", "display.ico")); } catch { }
 
         _appWindow.Closing += (_, args) =>
         {
+            DebugLog.WindowState($"Closing hideOnClose={_hideOnClose}", _hwnd, (_appWindow.Presenter as OverlappedPresenter)?.State);
             if (_hideOnClose)
             {
                 args.Cancel = true;
@@ -85,11 +126,49 @@ public sealed partial class MainWindow : Window
             };
         }
 
-        _notificationClient = new DeviceNotificationClient(() => DispatcherQueue.TryEnqueue(RefreshDevices));
+        _refreshDebounce = DispatcherQueue.CreateTimer();
+        _refreshDebounce.Interval = TimeSpan.FromMilliseconds(120);
+        _refreshDebounce.IsRepeating = false;
+        _refreshDebounce.Tick += (_, _) => RefreshDevices();
+
+        _notificationClient = new DeviceNotificationClient(() => DispatcherQueue.TryEnqueue(ScheduleRefresh));
         _notificationEnumerator.RegisterEndpointNotificationCallback(_notificationClient);
     }
 
-    private void RefreshDevices() => _ = RefreshDevicesAsync();
+    private readonly DispatcherQueueTimer _refreshDebounce;
+    private bool _refreshRunning;
+    private bool _refreshPending;
+
+    // 장치 변경 알림은 역할(Console/Multimedia/Communications)마다 연달아 오므로 120ms 모아서 한 번만 새로고침
+    private void ScheduleRefresh()
+    {
+        _refreshDebounce.Stop();
+        _refreshDebounce.Start();
+    }
+
+    private async void RefreshDevices()
+    {
+        if (_refreshRunning)
+        {
+            _refreshPending = true;
+            return;
+        }
+
+        _refreshRunning = true;
+        try
+        {
+            do
+            {
+                _refreshPending = false;
+                await RefreshDevicesAsync();
+            } while (_refreshPending);
+        }
+        finally
+        {
+            _refreshRunning = false;
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+        }
+    }
 
     private async Task RefreshDevicesAsync()
     {
@@ -189,7 +268,9 @@ public sealed partial class MainWindow : Window
 #endif
     }
 
-    private void RunBat(string fileName)
+    private readonly System.Threading.SemaphoreSlim _batLock = new(1, 1);
+
+    private async Task RunBatAsync(string fileName)
     {
         try
         {
@@ -208,8 +289,19 @@ public sealed partial class MainWindow : Window
                 WindowStyle = ProcessWindowStyle.Hidden,
                 WorkingDirectory = AppContext.BaseDirectory
             };
-            using var p = Process.Start(psi);
-            p?.WaitForExit(5000);
+            await _batLock.WaitAsync();
+            try
+            {
+                await Task.Run(() =>
+                {
+                    using var p = Process.Start(psi);
+                    p?.WaitForExit(5000);
+                });
+            }
+            finally
+            {
+                _batLock.Release();
+            }
             LogText.Text = $"{DateTime.Now:HH:mm:ss}  {fileName} 실행 완료";
         }
         catch (Exception ex)
@@ -233,12 +325,12 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    public void SetLoudMax(bool on)
+    public async void SetLoudMax(bool on)
     {
-        RunBat(on ? "LoudMax_On.bat" : "LoudMax_Off.bat");
         LoudMaxState.IsOn = on;
         UpdateLoudMaxButtons();
         App.Current.Tray?.UpdateLoudMax(on);
+        await RunBatAsync(on ? "LoudMax_On.bat" : "LoudMax_Off.bat");
     }
 
     private void LoudMaxOnButton_Click(object sender, RoutedEventArgs e) => SetLoudMax(true);
@@ -296,8 +388,8 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        await RefreshDevicesAsync();
-        LoadingOverlay.Visibility = Visibility.Collapsed;
+        // 장치 변경 알림과 합쳐서 한 번만 새로고침 (완료 시 오버레이 숨김)
+        ScheduleRefresh();
     }
 }
 

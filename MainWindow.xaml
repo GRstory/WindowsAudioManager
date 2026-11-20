@@ -20,8 +20,8 @@
         <Grid Grid.Row="0" x:Name="AppTitleBar" Padding="14,6,14,0" Height="36"
               Background="Transparent">
             <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" HorizontalAlignment="Left">
-                <FontIcon Glyph="&#xE7F5;" FontSize="14"
-                          Foreground="{ThemeResource SystemAccentColor}"/>
+                <Image Source="ms-appx:///Assets/Icons/display.ico"
+                       Width="16" Height="16"/>
                 <TextBlock Text="Windows Audio Manager"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            VerticalAlignment="Center"/>
@@ -36,11 +36,11 @@
 
             <Border Grid.Column="0"
                     x:Name="NavSidebar">
-                <StackPanel Spacing="4" Margin="8,16" HorizontalAlignment="Center">
+                <StackPanel Spacing="4" Margin="8,4,8,16">
                     <Button x:Name="MainTabButton"
                             Click="MainTabButton_Click"
-                            CornerRadius="6"
-                            Width="40" Height="40"
+                            CornerRadius="4"
+                            Width="136" Height="40"
                             Padding="0"
                             BorderThickness="0"
                             HorizontalContentAlignment="Stretch"
@@ -52,9 +52,12 @@
                         <Grid>
                             <Border x:Name="MainTabSelectedFill"
                                     Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                    CornerRadius="6"/>
-                            <FontIcon Glyph="&#xE7F5;" FontSize="16"
-                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    CornerRadius="4"/>
+                            <StackPanel Orientation="Horizontal" Spacing="12" Margin="12,0"
+                                        VerticalAlignment="Center">
+                                <FontIcon Glyph="&#xE7F5;" FontSize="16"/>
+                                <TextBlock Text="오디오"/>
+                            </StackPanel>
                             <Border x:Name="MainTabIndicator"
                                     Width="3" Height="16"
                                     HorizontalAlignment="Left" VerticalAlignment="Center"
@@ -64,8 +67,8 @@
                     </Button>
                     <Button x:Name="SettingsTabButton"
                             Click="SettingsTabButton_Click"
-                            CornerRadius="6"
-                            Width="40" Height="40"
+                            CornerRadius="4"
+                            Width="136" Height="40"
                             Padding="0"
                             BorderThickness="0"
                             HorizontalContentAlignment="Stretch"
@@ -77,10 +80,13 @@
                         <Grid>
                             <Border x:Name="SettingsTabSelectedFill"
                                     Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                    CornerRadius="6"
+                                    CornerRadius="4"
                                     Visibility="Collapsed"/>
-                            <FontIcon Glyph="&#xE713;" FontSize="16"
-                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" Spacing="12" Margin="12,0"
+                                        VerticalAlignment="Center">
+                                <FontIcon Glyph="&#xE713;" FontSize="16"/>
+                                <TextBlock Text="설정"/>
+                            </StackPanel>
                             <Border x:Name="SettingsTabIndicator"
                                     Width="3" Height="16"
                                     HorizontalAlignment="Left" VerticalAlignment="Center"
@@ -98,197 +104,255 @@
                     BorderThickness="1,1,0,0"
                     CornerRadius="8,0,0,0"/>
 
-            <Grid Grid.Column="1" x:Name="ContentArea" Margin="20,24,20,16">
+            <Grid Grid.Column="1" x:Name="ContentArea" Margin="24,20,24,20">
                 <StackPanel x:Name="MainTabContent" Spacing="16">
 
-                    <TextBlock Text="Windows Audio Manager"
+                    <TextBlock Text="오디오"
                                Style="{StaticResource TitleTextBlockStyle}"
-                               FontFamily="{StaticResource AppFontBold}"
-                               Margin="0,0,0,8"/>
+                               FontFamily="{StaticResource AppFontBold}"/>
 
-                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Padding="16">
-                        <StackPanel Spacing="12">
-                            <TextBlock Text="Equalizer APO"
-                                       Style="{StaticResource SubtitleTextBlockStyle}"/>
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Button x:Name="LoudMaxOnButton" Click="LoudMaxOnButton_Click">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon Glyph="&#xE93E;" FontSize="14"/>
-                                        <TextBlock Text="LoudMax On"/>
-                                    </StackPanel>
-                                </Button>
-                                <Button x:Name="LoudMaxOffButton" Click="LoudMaxOffButton_Click">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon Glyph="&#xE74F;" FontSize="14"/>
-                                        <TextBlock Text="LoudMax Off"/>
-                                    </StackPanel>
-                                </Button>
+                    <!-- Equalizer APO -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Equalizer APO"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <Grid MinHeight="68" Padding="16,0" ColumnSpacing="16"
+                              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                              BorderThickness="1"
+                              CornerRadius="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <FontIcon Glyph="&#xE9E9;" FontSize="20" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="LoudMax"/>
+                                <TextBlock Text="Equalizer APO가 설치되어 있어야 동작합니다"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             </StackPanel>
-                        </StackPanel>
-                    </Border>
+                            <ToggleSwitch Grid.Column="2" x:Name="LoudMaxToggle"
+                                          OnContent="켬" OffContent="끔"
+                                          MinWidth="0"
+                                          VerticalAlignment="Center"
+                                          Toggled="LoudMaxToggle_Toggled"/>
+                        </Grid>
+                    </StackPanel>
 
-                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Padding="16">
-                        <StackPanel Spacing="12">
-                            <Grid>
-                                <TextBlock Text="Windows Audio Settings"
-                                           Style="{StaticResource SubtitleTextBlockStyle}"
-                                           VerticalAlignment="Center"/>
-                                <Button Click="RefreshButton_Click" HorizontalAlignment="Right">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon Glyph="&#xE72C;" FontSize="14"/>
-                                        <TextBlock Text="새로고침"/>
-                                    </StackPanel>
-                                </Button>
-                            </Grid>
-
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0" Spacing="6" Margin="0,0,16,0">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon Glyph="&#xE7F5;" FontSize="14"
-                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Text="출력 장치"
-                                                   Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                    </StackPanel>
-                                    <ItemsControl x:Name="OutputList">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="local:AudioDevice">
-                                                <Button Click="DeviceButton_Click"
-                                                        Tag="{x:Bind Id}"
-                                                        Style="{StaticResource DeviceItemButtonStyle}"
-                                                        Margin="0,3">
-                                                    <Grid ColumnSpacing="10">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="3"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <Border Grid.Column="0"
-                                                                Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                                                CornerRadius="1.5"
-                                                                Visibility="{x:Bind CheckVisibility}"/>
-                                                        <TextBlock Grid.Column="1"
-                                                                   Text="{x:Bind Name}"
-                                                                   TextTrimming="CharacterEllipsis"
-                                                                   TextWrapping="NoWrap"
-                                                                   VerticalAlignment="Center"
-                                                                   Margin="4,0,0,0"/>
-                                                        <FontIcon Grid.Column="2" Glyph="&#xE73E;"
-                                                                  FontSize="12"
-                                                                  Foreground="{ThemeResource AccentFillColorDefaultBrush}"
-                                                                  Visibility="{x:Bind CheckVisibility}"/>
-                                                    </Grid>
-                                                </Button>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                    <!-- 장치 -->
+                    <StackPanel Spacing="8">
+                        <Grid>
+                            <TextBlock Text="장치"
+                                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                                       VerticalAlignment="Bottom"/>
+                            <Button Click="RefreshButton_Click" HorizontalAlignment="Right">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE72C;" FontSize="14"
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="새로고침"/>
                                 </StackPanel>
+                            </Button>
+                        </Grid>
 
-                                <Border Grid.Column="1" Width="1"
-                                        Background="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                        Margin="0,8"/>
+                        <StackPanel Padding="8" Spacing="4"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="8,4">
+                                <TextBlock Text="출력"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock x:Name="OutputCountText"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                            <ItemsControl x:Name="OutputList">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VariableSizedWrapGrid Orientation="Horizontal"
+                                                               MaximumRowsOrColumns="2"
+                                                               ItemWidth="284" ItemHeight="42"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="local:AudioDevice">
+                                        <Button Click="DeviceButton_Click"
+                                                Tag="{x:Bind Id}"
+                                                ToolTipService.ToolTip="{x:Bind Name}"
+                                                Style="{StaticResource DeviceItemButtonStyle}">
+                                            <Grid>
+                                                <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                                        CornerRadius="4"
+                                                        Visibility="{x:Bind CheckVisibility}"/>
+                                                <Border Width="3" Height="16"
+                                                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                        CornerRadius="1.5"
+                                                        Visibility="{x:Bind CheckVisibility}"/>
+                                                <Grid ColumnSpacing="10" Padding="12,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <FontIcon Glyph="&#xE7F5;" FontSize="16"
+                                                              VerticalAlignment="Center"
+                                                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <FontIcon Glyph="&#xE7F5;" FontSize="16"
+                                                              VerticalAlignment="Center"
+                                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                              Visibility="{x:Bind CheckVisibility}"/>
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{x:Bind Name}"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               TextWrapping="NoWrap"
+                                                               VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Grid>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
 
-                                <StackPanel Grid.Column="2" Spacing="6" Margin="16,0,0,0">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon Glyph="&#xE720;" FontSize="14"
-                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Text="입력 장치"
-                                                   Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                    </StackPanel>
-                                    <ItemsControl x:Name="InputList">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="local:AudioDevice">
-                                                <Button Click="DeviceButton_Click"
-                                                        Tag="{x:Bind Id}"
-                                                        Style="{StaticResource DeviceItemButtonStyle}"
-                                                        Margin="0,3">
-                                                    <Grid ColumnSpacing="10">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="3"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <Border Grid.Column="0"
-                                                                Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                                                CornerRadius="1.5"
-                                                                Visibility="{x:Bind CheckVisibility}"/>
-                                                        <TextBlock Grid.Column="1"
-                                                                   Text="{x:Bind Name}"
-                                                                   TextTrimming="CharacterEllipsis"
-                                                                   TextWrapping="NoWrap"
-                                                                   VerticalAlignment="Center"
-                                                                   Margin="4,0,0,0"/>
-                                                        <FontIcon Grid.Column="2" Glyph="&#xE73E;"
-                                                                  FontSize="12"
-                                                                  Foreground="{ThemeResource AccentFillColorDefaultBrush}"
-                                                                  Visibility="{x:Bind CheckVisibility}"/>
-                                                    </Grid>
-                                                </Button>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </Grid>
+                            <Border Height="1" Margin="8,6"
+                                    Background="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="8,4">
+                                <TextBlock Text="입력"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock x:Name="InputCountText"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                            <ItemsControl x:Name="InputList">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VariableSizedWrapGrid Orientation="Horizontal"
+                                                               MaximumRowsOrColumns="2"
+                                                               ItemWidth="284" ItemHeight="42"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="local:AudioDevice">
+                                        <Button Click="DeviceButton_Click"
+                                                Tag="{x:Bind Id}"
+                                                ToolTipService.ToolTip="{x:Bind Name}"
+                                                Style="{StaticResource DeviceItemButtonStyle}">
+                                            <Grid>
+                                                <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                                        CornerRadius="4"
+                                                        Visibility="{x:Bind CheckVisibility}"/>
+                                                <Border Width="3" Height="16"
+                                                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                        CornerRadius="1.5"
+                                                        Visibility="{x:Bind CheckVisibility}"/>
+                                                <Grid ColumnSpacing="10" Padding="12,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <FontIcon Glyph="&#xE720;" FontSize="16"
+                                                              VerticalAlignment="Center"
+                                                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <FontIcon Glyph="&#xE720;" FontSize="16"
+                                                              VerticalAlignment="Center"
+                                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                              Visibility="{x:Bind CheckVisibility}"/>
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{x:Bind Name}"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               TextWrapping="NoWrap"
+                                                               VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Grid>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
-                    </Border>
+                    </StackPanel>
                 </StackPanel>
 
                 <StackPanel x:Name="SettingsTabContent" Spacing="16" Opacity="0" IsHitTestVisible="False">
                     <TextBlock Text="설정"
                                Style="{StaticResource TitleTextBlockStyle}"
-                               FontFamily="{StaticResource AppFontBold}"
-                               Margin="0,0,0,8"/>
+                               FontFamily="{StaticResource AppFontBold}"/>
 
-                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Padding="16">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="시작"
-                                       Style="{StaticResource BodyStrongTextBlockStyle}"
-                                       Margin="0,0,0,4"/>
-                            <ToggleSwitch x:Name="AutoStartToggle"
-                                          Header="Windows 시작 시 자동 실행 (트레이로 시작)"
-                                          OnContent="켬"
-                                          OffContent="끔"
+                    <StackPanel Spacing="4">
+                        <Grid MinHeight="64" Padding="16,0" ColumnSpacing="16"
+                              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                              BorderThickness="1"
+                              CornerRadius="8,8,4,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <FontIcon Glyph="&#xE768;" FontSize="20" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Windows 시작 시 자동 실행"/>
+                                <TextBlock Text="창을 띄우지 않고 트레이 아이콘으로 시작합니다"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="2" x:Name="AutoStartToggle"
+                                          OnContent="켬" OffContent="끔"
+                                          MinWidth="0"
+                                          VerticalAlignment="Center"
                                           Toggled="AutoStartToggle_Toggled"/>
-                        </StackPanel>
-                    </Border>
+                        </Grid>
 
-                    <Button Click="ExitButton_Click" HorizontalAlignment="Left">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <FontIcon Glyph="&#xE7E8;" FontSize="14"/>
-                            <TextBlock Text="프로그램 종료"/>
-                        </StackPanel>
-                    </Button>
+                        <Grid MinHeight="64" Padding="16,0" ColumnSpacing="16"
+                              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                              BorderThickness="1"
+                              CornerRadius="4,4,8,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <FontIcon Glyph="&#xE7E8;" FontSize="20" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="프로그램 종료"/>
+                                <TextBlock Text="트레이 아이콘까지 완전히 종료합니다"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                            <Button Grid.Column="2" Content="종료"
+                                    VerticalAlignment="Center"
+                                    Click="ExitButton_Click"/>
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </Grid>
 
-        <Border Grid.Row="2"
-                Background="{ThemeResource LayerFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="0,1,0,0"
-                Padding="14,6">
-            <TextBlock x:Name="LogText"
+        <Grid Grid.Row="2"
+              Background="{ThemeResource LayerFillColorDefaultBrush}"
+              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+              BorderThickness="0,1,0,0"
+              Padding="16,6"
+              ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <FontIcon Glyph="&#xE946;" FontSize="12"
+                      VerticalAlignment="Center"
+                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <TextBlock Grid.Column="1" x:Name="LogText"
                        Style="{StaticResource CaptionTextBlockStyle}"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       VerticalAlignment="Center"
                        TextTrimming="CharacterEllipsis"/>
-        </Border>
+        </Grid>
 
         <Grid x:Name="LoadingOverlay"
               Grid.Row="1"

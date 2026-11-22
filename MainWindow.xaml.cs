@@ -121,7 +121,7 @@ public sealed partial class MainWindow : Window
         {
             root.Loaded += (_, _) =>
             {
-                UpdateLoudMaxButtons();
+                UpdateLoudMaxToggle();
                 RefreshDevices();
             };
         }
@@ -220,6 +220,8 @@ public sealed partial class MainWindow : Window
         foreach (var o in outputs) _outputs.Add(o);
         _inputs.Clear();
         foreach (var i in inputs) _inputs.Add(i);
+        OutputCountText.Text = outputs.Count.ToString();
+        InputCountText.Text = inputs.Count.ToString();
         LogText.Text = status;
 
         _resizeSettleSize = default;
@@ -310,32 +312,28 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    public void UpdateLoudMaxButtons()
+    private bool _syncingLoudMaxToggle;
+
+    private void UpdateLoudMaxToggle()
     {
-        var accent = (Style)Application.Current.Resources["AccentButtonStyle"];
-        if (LoudMaxState.IsOn)
-        {
-            LoudMaxOnButton.Style = accent;
-            LoudMaxOffButton.ClearValue(Button.StyleProperty);
-        }
-        else
-        {
-            LoudMaxOnButton.ClearValue(Button.StyleProperty);
-            LoudMaxOffButton.Style = accent;
-        }
+        _syncingLoudMaxToggle = true;
+        LoudMaxToggle.IsOn = LoudMaxState.IsOn;
+        _syncingLoudMaxToggle = false;
     }
 
     public async void SetLoudMax(bool on)
     {
         LoudMaxState.IsOn = on;
-        UpdateLoudMaxButtons();
+        UpdateLoudMaxToggle();
         App.Current.Tray?.UpdateLoudMax(on);
         await RunBatAsync(on ? "LoudMax_On.bat" : "LoudMax_Off.bat");
     }
 
-    private void LoudMaxOnButton_Click(object sender, RoutedEventArgs e) => SetLoudMax(true);
-
-    private void LoudMaxOffButton_Click(object sender, RoutedEventArgs e) => SetLoudMax(false);
+    private void LoudMaxToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_syncingLoudMaxToggle) return;
+        SetLoudMax(LoudMaxToggle.IsOn);
+    }
 
     private void RefreshButton_Click(object sender, RoutedEventArgs e) => RefreshDevices();
 
